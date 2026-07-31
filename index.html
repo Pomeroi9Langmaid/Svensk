@@ -1,23 +1,60 @@
 <!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Svenska Nära</title><meta name="description" content="Lär dig svenska genom fria lokala och nationella nyheter."><link rel="stylesheet" href="/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Svenska Nära</title>
+  <meta name="description" content="Lär dig svenska genom fria lokala och nationella nyheter.">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<main>
-  <header class="hero"><div><p class="eyebrow">SVENSKA GENOM NYHETER</p><h1>Svenska Nära</h1><p class="intro">Fria nyheter från Göteborg, Kungälv, Marstrand, Stenungsund, Tjörn och resten av Sverige. Läs eller lyssna, spara svåra ord och träna tills de fastnar.</p></div><div class="streak"><strong id="learningCount">5 words</strong><span>in active practice</span></div></header>
-  <nav class="main-nav" aria-label="Huvudmeny"><button class="nav-button active" data-view="newsView">Nyheter</button><button class="nav-button" data-view="practiceView">Öva ord</button><button class="nav-button" data-view="archiveView">Förstådda ord</button></nav>
-  <section id="newsView" class="view active">
-    <section class="starter card"><div><p class="eyebrow">DINA FÖRSTA UTTRYCK</p><h2>De här fem börjar vi med</h2></div><div id="starterWords" class="word-grid"></div></section>
-    <div id="localNews" hidden></div>
-    <div class="section-title"><div><p class="eyebrow">MYCKET NÄRA DIG</p><h2>Kungälv & Marstrand</h2></div><span class="live">● Uppdateras automatiskt</span></div><div id="kungalvNews" class="news-grid"><p class="muted">Hämtar nyheter…</p></div>
-    <div class="section-title"><div><p class="eyebrow">GÖTEBORG</p><h2>Göteborgs Stad & lokala händelser</h2></div></div><div id="gothenburgNews" class="news-grid"><p class="muted">Hämtar nyheter…</p></div>
-    <div class="section-title"><div><p class="eyebrow">NORDVÄSTKUSTEN</p><h2>Stenungsund & Tjörn</h2></div></div><div id="coastNews" class="news-grid"><p class="muted">Hämtar nyheter…</p></div>
-    <div class="columns"><section><div class="section-title"><div><p class="eyebrow">VÄSTSVERIGE</p><h2>SVT Nyheter Väst</h2></div></div><div id="westNews"><p class="muted">Hämtar nyheter…</p></div></section><section><div class="section-title"><div><p class="eyebrow">SVERIGE IDAG</p><h2>Nationella nyheter</h2></div></div><div id="nationalNews"><p class="muted">Hämtar nyheter…</p></div></section></div>
-  </section>
-  <section id="practiceView" class="view"><section class="practice card"><div><p class="eyebrow">NY BERÄTTELSE</p><h2>Träna dina ord i ett nytt sammanhang</h2></div><p id="story" class="story"></p><div class="practice-actions"><button id="newStory">Ny berättelse</button><button id="speakStory" class="secondary">▶ Lyssna</button></div></section><section class="saved card"><div><p class="eyebrow">AKTIV TRÄNING</p><h2>Ord jag fortfarande lär mig</h2></div><div id="savedWords" class="saved-list"></div></section></section>
-  <section id="archiveView" class="view"><section class="saved card"><div><p class="eyebrow">ARKIV</p><h2>Ord jag har förstått</h2><p class="muted">De sparas här så att du kan återaktivera dem om du glömmer.</p></div><div id="masteredWords" class="saved-list"></div></section></section>
-</main>
-<div id="reader"></div><div id="toast" role="status" aria-live="polite"></div><script src="/app.js"></script><script src="/local-news.js"></script>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">SVENSKA GENOM NYHETER</p>
+      <h1>Svenska Nära</h1>
+      <p class="lead">Läs gratis nyheter från Göteborg, Kungälv, Marstrand, Stenungsund, Tjörn och Sverige. Spara svåra ord och träna dem i enkla meningar.</p>
+      <div class="status-pill"><strong id="learningCount">5</strong><span>ord i träning</span></div>
+    </header>
+
+    <nav class="tabs" aria-label="Huvudmeny">
+      <button class="tab-button active" data-view="newsView">Nyheter</button>
+      <button class="tab-button" data-view="practiceView">Öva meningar</button>
+      <button class="tab-button" data-view="masteredView">Förstådda ord</button>
+    </nav>
+
+    <section id="newsView" class="view active">
+      <section class="starter panel">
+        <div>
+          <p class="eyebrow">DINA FÖRSTA UTTRYCK</p>
+          <h2>Fem uttryck att börja med</h2>
+        </div>
+        <div id="starterWords" class="starter-grid"></div>
+      </section>
+
+      <div id="newsSections"></div>
+    </section>
+
+    <section id="practiceView" class="view">
+      <section class="practice-intro panel dark">
+        <p class="eyebrow">MENINGSTRÄNING</p>
+        <h2>Läs och lyssna på samma ord i flera sammanhang</h2>
+        <p>Varje ord visas i upp till fyra enkla meningar. Du kan lyssna på en mening i taget.</p>
+      </section>
+      <div id="practiceWords"></div>
+    </section>
+
+    <section id="masteredView" class="view">
+      <section class="panel">
+        <p class="eyebrow">ARKIV</p>
+        <h2>Ord du har förstått</h2>
+        <p class="muted">Orden raderas inte. Du kan när som helst flytta tillbaka dem till träningen.</p>
+      </section>
+      <div id="masteredWords"></div>
+    </section>
+  </main>
+
+  <div id="reader"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
 </body>
 </html>
