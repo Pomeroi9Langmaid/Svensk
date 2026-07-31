@@ -1,0 +1,7 @@
+const FEEDS=[
+{name:'SVT Nyheter Väst',url:'https://www.svt.se/nyheter/lokalt/vast/rss.xml',region:'Göteborg & Väst'},
+{name:'SVT Nyheter',url:'https://www.svt.se/nyheter/rss.xml',region:'Sverige'}];
+function decode(v=''){return v.replace(/<!\[CDATA\[|\]\]>/g,'').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/<[^>]*>/g,'').trim()}
+function tag(block,name){const m=block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`,'i'));return decode(m?.[1]||'')}
+function parse(xml,source){return(xml.match(/<item[\s\S]*?<\/item>/gi)||[]).slice(0,10).map((b,i)=>({id:`${source.name}-${i}-${tag(b,'pubDate')}`,title:tag(b,'title'),description:tag(b,'description'),link:tag(b,'link'),published:tag(b,'pubDate'),source:source.name,region:source.region})).filter(x=>x.title&&x.link)}
+module.exports=async(req,res)=>{res.setHeader('Cache-Control','s-maxage=600, stale-while-revalidate=1800');const results=await Promise.allSettled(FEEDS.map(async source=>{const r=await fetch(source.url);if(!r.ok)throw new Error(String(r.status));return parse(await r.text(),source)}));res.status(200).json({news:results.flatMap(r=>r.status==='fulfilled'?r.value:[]),updatedAt:new Date().toISOString()})}
