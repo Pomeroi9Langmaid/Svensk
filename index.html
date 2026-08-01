@@ -15,47 +15,10 @@
       <p class="lead">Läs gratis nyheter från Göteborg, Kungälv, Marstrand, Stenungsund, Tjörn och Sverige. Börja med lättare nyheter, spara svåra ord och träna dem i enkla meningar.</p>
       <div class="status-pill"><strong id="learningCount">5</strong><span>ord i träning</span></div>
     </header>
-
-    <nav class="tabs" aria-label="Huvudmeny">
-      <button class="tab-button active" data-view="newsView">Nyheter</button>
-      <button class="tab-button" data-view="practiceView">Öva meningar</button>
-      <button class="tab-button" data-view="masteredView">Förstådda ord</button>
-    </nav>
-
-    <section id="newsView" class="view active">
-      <section class="starter panel">
-        <div>
-          <p class="eyebrow">DINA FÖRSTA UTTRYCK</p>
-          <h2>Fem uttryck att börja med</h2>
-        </div>
-        <div id="starterWords" class="starter-grid"></div>
-      </section>
-
-      <div id="newsSections"></div>
-    </section>
-
-    <section id="practiceView" class="view">
-      <section class="practice-intro panel dark">
-        <p class="eyebrow">MENINGSTRÄNING</p>
-        <h2>Läs och lyssna på samma ord i flera sammanhang</h2>
-        <p>Varje ord visas i upp till fyra enkla meningar. Du kan lyssna på en mening i taget.</p>
-      </section>
-      <div id="practiceWords"></div>
-    </section>
-
-    <section id="masteredView" class="view">
-      <section class="panel">
-        <p class="eyebrow">ARKIV</p>
-        <h2>Ord du har förstått</h2>
-        <p class="muted">Orden raderas inte. Du kan när som helst flytta tillbaka dem till träningen.</p>
-      </section>
-      <div id="masteredWords"></div>
-    </section>
+    <nav class="tabs" aria-label="Huvudmeny"><button class="tab-button active" data-view="newsView">Nyheter</button><button class="tab-button" data-view="practiceView">Öva meningar</button><button class="tab-button" data-view="masteredView">Förstådda ord</button></nav>
+    <section id="newsView" class="view active"><section class="starter panel"><div><p class="eyebrow">DINA FÖRSTA UTTRYCK</p><h2>Fem uttryck att börja med</h2></div><div id="starterWords" class="starter-grid"></div></section><div id="newsSections"></div></section>
+    <section id="practiceView" class="view"><section class="practice-intro panel dark"><p class="eyebrow">MENINGSTRÄNING</p><h2>Läs och lyssna på samma ord i flera sammanhang</h2><p>Varje ord visas i upp till fyra enkla meningar. Du kan lyssna på en mening i taget.</p></section><div id="practiceWords"></div></section>
+    <section id="masteredView" class="view"><section class="panel"><p class="eyebrow">ARKIV</p><h2>Ord du har förstått</h2><p class="muted">Orden raderas inte. Du kan när som helst flytta tillbaka dem till träningen.</p></section><div id="masteredWords"></div></section>
   </main>
-
-  <div id="reader"></div>
-  <div id="toast" role="status" aria-live="polite"></div>
-  <script src="/app.js"></script>
-  <script src="/easy-news.js"></script>
-</body>
-</html>
+  <div id="reader"></div><div id="toast" role="status" aria-live="polite"></div><script src="/app.js"></script><script src="/interaction-upgrades.js"></script><script src="/easy-news.js"></script>
+</body></html>
