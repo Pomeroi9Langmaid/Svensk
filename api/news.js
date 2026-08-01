@@ -7,18 +7,30 @@ const SOURCES = [
   { name: 'SVT Nyheter', url: 'https://www.svt.se/nyheter/rss.xml', region: 'Sverige', type: 'rss' }
 ];
 
+function decodeEntity(match, dec, hex) {
+  const code = dec ? Number(dec) : parseInt(hex, 16);
+  return Number.isFinite(code) ? String.fromCodePoint(code) : match;
+}
+
 function decode(value = '') {
-  return String(value)
-    .replace(/<!\[CDATA\[|\]\]>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&#x27;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  let text = String(value);
+  for (let i = 0; i < 3; i += 1) {
+    text = text
+      .replace(/<!\[CDATA\[|\]\]>/g, '')
+      .replace(/&#(\d+);/g, decodeEntity)
+      .replace(/&#x([0-9a-f]+);/gi, decodeEntity)
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&quot;/gi, '"')
+      .replace(/&apos;|&#39;/gi, "'")
+      .replace(/&aring;/gi, 'å').replace(/&Aring;/g, 'Å')
+      .replace(/&auml;/gi, 'ä').replace(/&Auml;/g, 'Ä')
+      .replace(/&ouml;/gi, 'ö').replace(/&Ouml;/g, 'Ö')
+      .replace(/&eacute;/gi, 'é')
+      .replace(/&ndash;/gi, '–').replace(/&mdash;/gi, '—')
+      .replace(/&lt;/gi, '<').replace(/&gt;/gi, '>');
+  }
+  return text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function tag(block, names) {
@@ -36,12 +48,19 @@ function linkFrom(block) {
   return decode(href || '');
 }
 
+function tidy(text, max) {
+  const clean = decode(text);
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max).replace(/\s+\S*$/, '');
+  return `${cut}…`;
+}
+
 function parseFeed(xml, source) {
   const blocks = xml.match(/<(item|entry)\b[\s\S]*?<\/\1>/gi) || [];
   return blocks.slice(0, 14).map((block, index) => ({
     id: `${source.name}-${index}-${tag(block, ['pubDate', 'updated', 'published'])}`,
-    title: tag(block, 'title'),
-    description: tag(block, ['description', 'summary', 'content']),
+    title: tidy(tag(block, 'title'), 120),
+    description: tidy(tag(block, ['description', 'summary', 'content']), 280),
     link: linkFrom(block),
     published: tag(block, ['pubDate', 'updated', 'published']) || new Date().toISOString(),
     source: source.name,
@@ -57,16 +76,38 @@ function parseKungalv(html, source) {
   const results = [];
   const pattern = /<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   let match;
-  while ((match = pattern.exec(html)) && results.length < 14) {
+  while ((match = pattern.exec(html)) && results.length < 12) {
     const href = match[1];
-    const title = decode(match[2]);
-    if (!title || title.length < 12 || title.length > 180) continue;
     if (!/nyheter|aktuellt/i.test(href) || /kommun--politik\/nyheter\/?$/i.test(href)) continue;
     const link = absoluteUrl(source.url, href);
     if (!link || results.some(item => item.link === link)) continue;
-    const nearby = html.slice(pattern.lastIndex, pattern.lastIndex + 700);
-    const description = decode(nearby.match(/<p[^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
-    results.push({ id: `${source.name}-${results.length}-${link}`, title, description, link, published: new Date().toISOString(), source: source.name, region: source.region });
+
+    const inner = match[2];
+    const headingHtml = inner.match(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/i)?.[1]
+      || inner.match(/<(strong|span)[^>]*class=["'][^"']*(title|heading)[^"']*["'][^>]*>([\s\S]*?)<\/\1>/i)?.[3]
+      || '';
+    let title = decode(headingHtml);
+    const fullText = decode(inner);
+    if (!title) title = fullText.split(/(?<=[.!?])\s+/)[0];
+    title = tidy(title, 105);
+    if (!title || title.length < 8) continue;
+
+    const remaining = fullText.startsWith(title.replace(/…$/, ''))
+      ? fullText.slice(title.replace(/…$/, '').length).trim()
+      : '';
+    const nearby = html.slice(pattern.lastIndex, pattern.lastIndex + 900);
+    const nearbyParagraph = decode(nearby.match(/<p[^>]*>([\s\S]*?)<\/p>/i)?.[1] || '');
+    const description = tidy(remaining || nearbyParagraph, 240);
+
+    results.push({
+      id: `${source.name}-${results.length}-${link}`,
+      title,
+      description,
+      link,
+      published: new Date().toISOString(),
+      source: source.name,
+      region: source.region
+    });
   }
   return results;
 }
@@ -79,7 +120,9 @@ module.exports = async (req, res) => {
     const text = await response.text();
     return source.type === 'kungalv' ? parseKungalv(text, source) : parseFeed(text, source);
   }));
-  results.forEach((result, index) => { if (result.status === 'rejected') console.error('[api/news] source failed', SOURCES[index].name, String(result.reason)); });
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') console.error('[api/news] source failed', SOURCES[index].name, String(result.reason));
+  });
   const news = results.flatMap(result => result.status === 'fulfilled' ? result.value : []);
   res.status(200).json({ news, updatedAt: new Date().toISOString(), sources: SOURCES.map(source => source.name) });
 };
